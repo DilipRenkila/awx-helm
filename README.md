@@ -89,7 +89,6 @@ Parameter | Description | Default
 `rabbitmq_erlang_cookie` | rabbitmq erlang cookie | `cookiemonster`
 `insights_url_base` | insights url base | `"https://example.org"`
 `ingress.enabled` | Enable default ingress | `true`
-`ingress.hostname` | DNS name for default ingress | `chartname.example.com`
 `postgresql.install` | Install postgresql chart | `true`
 `postgresql.image.registry` | postgresql image registry | `docker.io`
 `postgresql.image.repository` | postgresql image version/tag | `9.6`
