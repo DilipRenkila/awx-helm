@@ -9,6 +9,10 @@ a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh)
 package manager. This chart requires [metrics-server](https://github.com/kubernetes-incubator/metrics-server) be installed in order for the hpa to
 gather metrics.
 
+## Pre-Config
+If using ingress.tls (enabled by default) you will need to update the `templates/secrets.yaml`
+with the base64 encoded crt and key file
+
 ## Installing the Chart
 
 To install the chart with the release name `awx` in the `ansible` namespace:
