@@ -1,0 +1,187 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: {{ .Release.Name }}
+  replicas: {{ .Values.controller.replicaCount }}
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-web-deploy
+        service: django
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: awx
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ .Release.Name }}-web
+          image: "{{ .Values.awx_web.image.repository }}:{{ .Values.awx_web.image.tag }}"
+          imagePullPolicy: {{ .Values.awx_web.image.pullPolicy }}
+          ports:
+            - containerPort: 8052
+          volumeMounts:
+{{- if .Values.ca_trust_dir.enabled -}}
+            - name: {{ .Values.ca_trust_dir.path }}-ca-trust-dir
+              mountPath: "/etc/pki/ca-trust/source/anchors/"
+              readOnly: true
+{{- end }}
+{{- if .Values.project_data_dir.enabled -}}
+            - name: {{ .Values.project_data_dir.path }}-project-data-dir
+              mountPath: "/var/lib/awx/projects"
+              readOnly: false
+{{- end }}
+            - name: {{ .Release.Name }}-application-config
+              mountPath: "/etc/tower/settings.py"
+              subPath: settings.py
+              readOnly: true
+
+            - name: {{ .Release.Name }}-application-credentials
+              mountPath: "/etc/tower/conf.d/"
+              readOnly: true
+
+            - name: {{ .Release.Name }}-secret-key
+              mountPath: "/etc/tower/SECRET_KEY"
+              subPath: SECRET_KEY
+              readOnly: true
+
+          resources:
+{{ toYaml .Values.awx_web.resources | indent 12 }}
+
+        - name: {{ .Release.Name }}-celery
+          securityContext:
+            privileged: true
+          image: "{{ .Values.awx_task.image.repository }}:{{ .Values.awx_task.image.tag }}"
+          command:
+            - /usr/bin/launch_awx_task.sh
+          imagePullPolicy: {{ .Values.awx_task.image.pullPolicy }}
+          volumeMounts:
+{{- if .Values.ca_trust_dir.enabled -}}
+            - name: {{ .Values.ca_trust_dir.path }}-ca-trust-dir
+              mountPath: "/etc/pki/ca-trust/source/anchors/"
+              readOnly: true
+{{- end }}
+            - name: {{ .Release.Name }}-application-config
+              mountPath: "/etc/tower/settings.py"
+              subPath: settings.py
+              readOnly: true
+
+            - name: "{{ .Release.Name }}-application-credentials"
+              mountPath: "/etc/tower/conf.d/"
+              readOnly: true
+
+            - name: {{ .Release.Name }}-secret-key
+              mountPath: "/etc/tower/SECRET_KEY"
+              subPath: SECRET_KEY
+              readOnly: true
+          env:
+            - name: AWX_SKIP_MIGRATIONS
+              value: ""
+          resources:
+{{ toYaml .Values.awx_task.resources | indent 12 }}
+
+        - name: {{ .Release.Name }}-rabbitmq
+          image: "{{ .Values.awx_rabbitmq.image.repository }}:{{ .Values.awx_rabbitmq.image.tag }}"
+          imagePullPolicy: {{ .Values.awx_rabbitmq.image.pullPolicy }}
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: 15672
+            - name: amqp
+              protocol: TCP
+              containerPort: 5672
+          livenessProbe:
+            exec:
+              command: ["rabbitmqctl", "status"]
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["rabbitmqctl", "status"]
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RABBITMQ_USE_LONGNAME
+              value: "true"
+            - name: RABBITMQ_NODENAME
+              value: "rabbit@$(MY_POD_IP)"
+            - name: RABBITMQ_ERLANG_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secrets"
+                  key: rabbitmq_erlang_cookie
+            - name: K8S_SERVICE_NAME
+              value: "rabbitmq"
+          volumeMounts:
+            - name: rabbitmq-config
+              mountPath: /etc/rabbitmq
+          resources:
+{{ toYaml .Values.awx_rabbitmq.resources | indent 12 }}
+        - name: {{ .Release.Name }}-memcached
+          image: "{{ .Values.awx_memcached.image.repository }}:{{ .Values.awx_memcached.image.tag }}"
+          imagePullPolicy: {{ .Values.awx_memcached.image.pullPolicy }}
+          resources:
+{{ toYaml .Values.awx_memcached.resources | indent 12 }}
+{{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+{{- if .Values.ca_trust_dir.enabled -}}
+        - name: {{ .Release.Name }}-ca-trust-dir
+          hostPath:
+            path: "{{ .Values.ca_trust_dir.path }}"
+            type: Directory
+{{- end }}
+{{- if .Values.project_data_dir.enabled -}}
+        - name: {{ .Release.Name }}-project-data-dir
+          hostPath:
+            path: "{{ .Values.project_data_dir.path }}"
+            type: Directory
+{{- end }}
+        - name: {{ .Release.Name }}-application-config
+          configMap:
+            name: {{ .Release.Name }}-config
+            items:
+              - key: {{ .Release.Name }}_settings
+                path: settings.py
+
+        - name: "{{ .Release.Name }}-application-credentials"
+          secret:
+            secretName: "{{ .Release.Name }}-secrets"
+            items:
+              - key: credentials_py
+                path: 'credentials.py'
+              - key: environment_sh
+                path: 'environment.sh'
+
+        - name: {{ .Release.Name }}-secret-key
+          secret:
+            secretName: "{{ .Release.Name }}-secrets"
+            items:
+              - key: secret_key
+                path: SECRET_KEY
+
+        - name: rabbitmq-config
+          configMap:
+            name: rabbitmq-config
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+            - key: rabbitmq_definitions.json
+              path: rabbitmq_definitions.json
