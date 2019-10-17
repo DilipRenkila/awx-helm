@@ -60,7 +60,7 @@ Parameter | Description | Default
 `controller.autoscaling.targetCPUUtilizationPercentage` | hpa metrics target cpu | `80`
 `controller.autoscaling.targetMemoryUtilizationPercentage` | hpa metrics target memory | `80`
 `controller.annotations` | annotations for the default controller | `{}`
-`quota.enable` | Enable or Disable namespace quota | `true`
+`quota.enable` | Enable or Disable namespace quota | `false`
 `quota.hard.requests.cpu` | namespace quota hard resource cpu | `2`
 `quota.hard.requests.memory` | namespace quota hard resource mem | `3Gi`
 `quota.hard.limits.cpu` | namespace quota hard limits cpu | `6`
