@@ -1,0 +1,8 @@
+{{- if .Values.quota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ .Release.Name }}-quota
+spec:
+{{ toYaml .Values.quota | indent 2 }}
+{{- end }}

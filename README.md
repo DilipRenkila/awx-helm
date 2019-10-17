@@ -60,6 +60,11 @@ Parameter | Description | Default
 `controller.autoscaling.targetCPUUtilizationPercentage` | hpa metrics target cpu | `80`
 `controller.autoscaling.targetMemoryUtilizationPercentage` | hpa metrics target memory | `80`
 `controller.annotations` | annotations for the default controller | `{}`
+`quota.enable` | Enable or Disable namespace quota | `true`
+`quota.hard.requests.cpu` | namespace quota hard resource cpu | `2`
+`quota.hard.requests.memory` | namespace quota hard resource mem | `3Gi`
+`quota.hard.limits.cpu` | namespace quota hard limits cpu | `6`
+`quota.hard.limits.memory` | namespace quota hard limits mem | `10Gi`
 `awx_web.image.repository` | awx-web image repository | `ansible/awx_web`
 `awx_web.image.tag` | awx-web image version/tag | `7.0.0`
 `awx_web.image.pullPolicy` | awx-web container image pull policy | `Always`

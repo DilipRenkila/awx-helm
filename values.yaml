@@ -105,6 +105,14 @@ controller:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
 
+quota:
+  enabled: false
+  hard:
+    requests.cpu: "2"
+    requests.memory: 3Gi
+    limits.cpu: "6"
+    limits.memory: 10Gi
+
 secret_key: awxsecret
 admin_user: admin
 admin_password: password
