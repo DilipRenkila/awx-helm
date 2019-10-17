@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}
@@ -6,6 +6,11 @@ metadata:
 spec:
   serviceName: {{ .Release.Name }}
   replicas: {{ .Values.controller.replicaCount }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-web-deploy
+      service: django
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
