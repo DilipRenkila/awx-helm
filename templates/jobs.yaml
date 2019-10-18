@@ -24,14 +24,21 @@ metadata:
   name: job-admin-role
   namespace: {{ .Release.Namespace }}
 rules:
-- apiGroups: ["", "extensions", "apps"]
-  resources: ["*"]
-  verbs: ["*"]
-- apiGroups: ["batch"]
-  resources:
-  - jobs
-  - cronjobs
-  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets", "statefulsets/scale"]
+  verbs: ["update"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["create"]
+- apiGroups: [""] #core api group
+  resources: ["configmaps", "serviceaccounts",]
+  verbs: ["delete"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["rolebindings", "roles",]
+  verbs: ["delete"]
 ---
 apiVersion: v1
 kind: ConfigMap
