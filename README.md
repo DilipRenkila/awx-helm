@@ -13,13 +13,19 @@ gather metrics.
 If using ingress.tls (enabled by default) you will need to update the `templates/secrets.yaml`
 with the base64 encoded crt and key file
 
+Update values.yaml and templates/secrets.yaml with vars relevant to your environment.
+
 ## Installing the Chart
 
 To install the chart with the release name `awx` in the `ansible` namespace:
 
-```console
+```sh
 helm dep up ./awx-helm
 helm install --name awx --namespace ansible ./awx-helm
+```
+Or if you'd like to specify an ingress name during install
+```sh
+helm install --name awx --namespace ansible --set ingress.hosts={"awx.example.net"},ingress.tls[0].hosts={"awx.example.net"} ./awx-helm
 ```
 
 The command deploys AWX on the Kubernetes cluster in the default configuration.
@@ -34,7 +40,7 @@ This charts embeds chart dependencies specified in the requirements.yaml file:
 
 To uninstall/delete the `awx` deployment:
 
-```console
+```sh
 helm delete --purge awx
 kubectl delete pvc --all -n ansible
 kubectl delete horizontalpodautoscaler.autoscaling/awx-hpa -n ansible
