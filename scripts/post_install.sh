@@ -48,7 +48,7 @@ done
 echo "Cleaning up job Role, Rolebinding, ServiceAccount and ConfigMaps..."
 ./kubectl delete cm/{{ .Release.Name }}-post-install-scripts
 ./kubectl delete cm/{{ .Release.Name }}-ansible-ldap-config
-./kubectl delete sa/job-admin
-./kubectl delete rolebinding/job-admin-rolebinding
-./kubectl delete role/job-admin-role
+# ./kubectl delete sa/job-admin
+# ./kubectl delete role/job-admin-role
+# ./kubectl delete rolebinding/job-admin-rolebinding
 echo "Done."

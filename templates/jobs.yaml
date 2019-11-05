@@ -26,18 +26,21 @@ metadata:
 rules:
 - apiGroups: ["apps"]
   resources: ["statefulsets", "statefulsets/scale"]
-  verbs: ["update"]
+  verbs: ["get", "patch", "update"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get"]
 - apiGroups: [""]
   resources: ["pods/exec"]
   verbs: ["create"]
 - apiGroups: ["autoscaling"]
   resources: ["horizontalpodautoscalers"]
-  verbs: ["create"]
+  verbs: ["get", "create"]
 - apiGroups: [""] #core api group
-  resources: ["configmaps", "serviceaccounts",]
+  resources: ["configmaps", "serviceaccounts"]
   verbs: ["delete"]
 - apiGroups: ["rbac.authorization.k8s.io"]
-  resources: ["rolebindings", "roles",]
+  resources: ["rolebindings", "roles"]
   verbs: ["delete"]
 ---
 apiVersion: v1
