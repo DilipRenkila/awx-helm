@@ -296,7 +296,7 @@ spec:
   ttlSecondsAfterFinished: 10
   template:
     spec:
-      initContainers:
+      containers:
         - name: {{ .Release.Name }}-management
           image: alpine:latest
           command: ["/bin/sh", "-c", "sleep 15m"]
