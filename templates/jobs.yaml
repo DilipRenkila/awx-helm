@@ -297,12 +297,9 @@ spec:
   template:
     spec:
       initContainers:
-      - name: {{ .Release.Name }}-init-wait
-        image: alpine
-        command: ["sh", "-c", "sleep 15m"]
-      containers:
         - name: {{ .Release.Name }}-management
           image: alpine:latest
+          command: ["/bin/sh", "-c", "sleep 15m"]
           command: ["/bin/sh", "-c", "/usr/local/scripts/bootstrap.sh"]
           # command: ["/bin/sh", "-c", "while sleep 3600; do :; done"]
           stdin: true
