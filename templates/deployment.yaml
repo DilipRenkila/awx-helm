@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   serviceName: {{ .Release.Name }}
-  replicas: {{ .Values.controller.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       name: {{ .Release.Name }}-web-deploy
