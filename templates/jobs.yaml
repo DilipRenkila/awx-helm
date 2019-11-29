@@ -61,31 +61,7 @@ data:
     curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
     chmod +x ./kubectl
     bash /usr/local/scripts/post_install.sh
-
 {{ (tpl (.Files.Glob "scripts/post_install.sh").AsConfig . ) | nindent 2 }}
-{{- if .Values.controller.autoscaling.enabled }}
-  hpa.yaml: |-
-    apiVersion: autoscaling/v2beta2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: {{ .Release.Name }}-hpa
-    spec:
-      maxReplicas: {{ .Values.controller.autoscaling.maxReplicas }}
-      minReplicas: {{ .Values.controller.autoscaling.minReplicas }}
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: {{ .Values.controller.kind }}
-        name: {{ .Release.Name }}
-      metrics:
-    {{- with .Values.controller.autoscaling.targetCPUUtilizationPercentage }}
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            type: Utilization
-            averageUtilization: {{ . }}
-    {{- end }}
-{{- end }}
 ---
 {{- if .Values.configure_ldap.enabled }}
 apiVersion: v1

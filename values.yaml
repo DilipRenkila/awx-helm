@@ -8,40 +8,24 @@ awx_web:
     repository: ansible/awx_web
     tag: 7.0.0
     pullPolicy: Always
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
 
 awx_task:
   image:
     repository: ansible/awx_task
     tag: 7.0.0
     pullPolicy: Always
-  resources:
-    requests:
-      cpu: 1500m
-      memory: 2Gi
 
 awx_rabbitmq:
   image:
     repository: ansible/awx_rabbitmq
     tag: 3.7.4
     pullPolicy: Always
-  resources:
-    requests:
-      cpu: 500m
-      memory: 2Gi
 
 awx_memcached:
   image:
     repository: memcached
     tag: latest
     pullPolicy: Always
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
 
 # Chart values https://github.com/helm/charts/blob/master/stable/postgresql/values.yaml
 postgresql:
@@ -57,10 +41,7 @@ postgresql:
     enabled: true
   metrics:
     enabled: false
-  resources:
-    limits:
-      memory: 512Mi
-      cpu: 500m
+
   #   requests:
   #     memory: 256Mi
   #     cpu: 250m
@@ -93,25 +74,6 @@ ingress:
     - secretName: ssl-cert
       hosts:
         - awx-k8s.example.com
-
-controller:
-  kind: StatefulSet
-  replicaCount: 1 # DO NOT CHANGE THIS VALUE
-  annotations: {}
-  autoscaling:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 10
-    targetCPUUtilizationPercentage: 80
-    targetMemoryUtilizationPercentage: 80
-
-quota:
-  enabled: false
-  hard:
-    requests.cpu: "2"
-    requests.memory: 3Gi
-    limits.cpu: "6"
-    limits.memory: 10Gi
 
 secret_key: awxsecret
 admin_user: admin
