@@ -63,7 +63,6 @@ data:
     bash /usr/local/scripts/post_install.sh
 {{ (tpl (.Files.Glob "scripts/post_install.sh").AsConfig . ) | nindent 2 }}
 ---
-{{- if .Values.configure_ldap.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -259,7 +258,6 @@ data:
         ]
     }
 ---
-{{- end }}
 apiVersion: batch/v1
 kind: Job
 metadata:
