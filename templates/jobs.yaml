@@ -53,6 +53,14 @@ data:
   bootstrap.sh: |
     #!/bin/sh
     # install bash
+    apk update
+    apk upgrade
+    apk add bash curl jq ncurses
+    apk add --no-cache ansible
+    # install kubectl
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+    chmod +x ./kubectl
+    bash /usr/local/scripts/post_install.sh
     bash /usr/local/scripts/post_install.sh
 
 {{ (tpl (.Files.Glob "scripts/post_install.sh").AsConfig . ) | nindent 2 }}
@@ -291,7 +299,7 @@ spec:
       initContainers:
       - name: {{ .Release.Name }}-init-wait
         image: alpine
-        command: ["sh", "-c", "for i in $(seq 1 300); do wget http://{{ .Release.Name }}-web-svc/ && exit 0 || sleep 3; done; exit 1"]
+        command: ["sh", "-c", "sleep 30m && exit 0"]
       containers:
         - name: {{ .Release.Name }}-management
           image: alpine:latest
