@@ -53,6 +53,7 @@ data:
   bootstrap.sh: |
     #!/bin/sh
     # install bash
+    sleep 15m
     apk update
     apk upgrade
     apk add bash curl jq ncurses
@@ -60,7 +61,6 @@ data:
     # install kubectl
     curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
     chmod +x ./kubectl
-    bash /usr/local/scripts/post_install.sh
     bash /usr/local/scripts/post_install.sh
 
 {{ (tpl (.Files.Glob "scripts/post_install.sh").AsConfig . ) | nindent 2 }}
@@ -299,7 +299,6 @@ spec:
       containers:
         - name: {{ .Release.Name }}-management
           image: alpine:latest
-          command: ["/bin/sh", "-c", "sleep 15m"]
           command: ["/bin/sh", "-c", "/usr/local/scripts/bootstrap.sh"]
           # command: ["/bin/sh", "-c", "while sleep 3600; do :; done"]
           stdin: true
